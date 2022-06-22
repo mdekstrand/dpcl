@@ -1,0 +1,28 @@
+[package]
+name = "dpcl"
+version = "0.1.0"
+edition = "2021"
+authors = [
+  "Michael Ekstrand <md@ekstrandom.net>"
+]
+license = "MIT"
+
+[dependencies]
+# basic reporting support
+log = "^0.4"
+thiserror = "^1.0"
+
+# scripting
+molt = "^0.3.1"
+
+# data and metadata
+md-5 = "^0.10"
+sha1 = "^0.10"
+toml = "^0.5"
+bincode = "^1.3"
+serde = "^1.0"
+
+# libraries for CLI
+indicatif = "^0.16"
+structopt = "^0.3"
+anyhow = "^1"
