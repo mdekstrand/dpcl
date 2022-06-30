@@ -15,6 +15,9 @@ thiserror = "^1.0"
 # scripting
 molt = "^0.3.1"
 
+# data structures
+petgraph = "^0.6.2"
+
 # data and metadata
 md-5 = "^0.10"
 sha1 = "^0.10"
