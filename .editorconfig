@@ -11,6 +11,9 @@ indent_size = 2
 [{*.toml,*.yml,*.yaml,*.dvc}]
 indent_size = 2
 
+[*.feature]
+indent_size = 2
+
 [*.tcl]
 indent_size = 4
 

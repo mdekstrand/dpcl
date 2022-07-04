@@ -4,6 +4,8 @@
 
 pub mod artifact;
 pub mod task;
+#[cfg(test)]
+mod test;
 
 use std::collections::HashMap;
 
@@ -16,7 +18,7 @@ use thiserror::Error;
 /// Error encountered when setting up the pipeline.
 #[derive(Error, Debug)]
 pub enum SetupError {
-  #[error("duplicate tasks detected")]
+  #[error("task with name ‘{0}’ already exists")]
   DuplicateTask(String),
 }
 
