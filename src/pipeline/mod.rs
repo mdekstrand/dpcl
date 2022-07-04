@@ -33,3 +33,13 @@ pub struct Pipeline {
   tasks: HashMap<String, u32>,
   files: HashMap<String, u32>,
 }
+
+impl Pipeline {
+  pub fn new() -> Pipeline {
+    Pipeline {
+      graph: Graph::new(),
+      tasks: HashMap::new(),
+      files: HashMap::new(),
+    }
+  }
+}
