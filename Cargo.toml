@@ -26,14 +26,22 @@ bincode = "^1.3"
 serde = "^1.0"
 
 # libraries for CLI
-indicatif = "^0.16"
-structopt = "^0.3"
+indicatif = { version="^0.16", optional=true}
+structopt = { version="^0.3", optional=true}
 anyhow = "^1"
 
 [dev-dependencies]
 async-trait = "^0.1"
 cucumber = "^0.13"
 futures = "^0.3"
+
+[features]
+default = ["cli"]
+cli = ["structopt", "indicatif"]
+
+[[bin]]
+name = "dpcl"
+required-features = ["cli"]
 
 [[test]]
 name = "features"
