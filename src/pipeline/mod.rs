@@ -28,10 +28,11 @@ enum PipeNode {
   Artifact(Artifact),
 }
 
+#[derive(Debug, Clone)]
 pub struct Pipeline {
   graph: Graph<PipeNode, (), Directed>,
   tasks: HashMap<String, u32>,
-  files: HashMap<String, u32>,
+  artifacts: HashMap<String, u32>,
 }
 
 impl Pipeline {
@@ -39,7 +40,15 @@ impl Pipeline {
     Pipeline {
       graph: Graph::new(),
       tasks: HashMap::new(),
-      files: HashMap::new(),
+      artifacts: HashMap::new(),
     }
+  }
+
+  pub fn task_count(&self) -> usize {
+    self.tasks.len()
+  }
+
+  pub fn artifact_count(&self) -> usize {
+    self.artifacts.len()
   }
 }
