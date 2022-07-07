@@ -31,9 +31,6 @@ structopt = { version="^0.3", optional=true}
 anyhow = "^1"
 
 [dev-dependencies]
-async-trait = "^0.1"
-cucumber = "^0.13"
-futures = "^0.3"
 
 [features]
 default = ["cli"]
@@ -42,7 +39,3 @@ cli = ["structopt", "indicatif"]
 [[bin]]
 name = "dpcl"
 required-features = ["cli"]
-
-[[test]]
-name = "features"
-harness = false
