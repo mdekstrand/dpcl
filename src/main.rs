@@ -1,5 +1,6 @@
-mod pipeline;
+use anyhow::Result;
+use dpcl::cli::DPCLRootCommand;
 
-fn main() {
-    println!("Hello, world!");
+fn main() -> Result<()> {
+  DPCLRootCommand::exec_main()
 }
