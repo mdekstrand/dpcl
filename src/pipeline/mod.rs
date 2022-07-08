@@ -9,7 +9,7 @@ mod test;
 
 use std::collections::HashMap;
 
-use petgraph::{Graph, Directed, graph::NodeIndex, Direction};
+use petgraph::{Graph, Directed, graph::NodeIndex, Direction, data::Build};
 pub use task::Task;
 pub use artifact::Artifact;
 
@@ -49,24 +49,35 @@ impl Pipeline {
   pub fn add_task(&mut self, task: Task) {
     let name = task.name.clone();
     debug!("adding task {}", name);
-    let node = PipeNode::Task(task);
+    let node = PipeNode::Task(task.clone());
     let idx = self.graph.add_node(node);
     self.tasks.insert(name, idx);
+
+    for dep in task.dependencies {
+      let di = self.find_or_insert_artifact(&dep);
+      self.graph.add_edge(di, idx, ());
+    }
+
+    for out in task.outputs {
+      let oi = self.find_or_insert_artifact(&out);
+      self.graph.add_edge(idx, oi, ());
+    }
   }
 
   /// Get a task by name.
   pub fn get_task(&self, name: &str) -> Option<&Task> {
     let idx = self.tasks.get(name);
-    idx.and_then(|i| self.idx_task(*i))
+    idx.and_then(|i| self.get_task_by_index(*i))
   }
 
   /// Get an artifact by name.
   pub fn get_artifact(&self, path: &str) -> Option<&Artifact> {
     let idx = self.artifacts.get(path);
-    idx.and_then(|i| self.idx_artifact(*i))
+    idx.and_then(|i| self.get_artifact_by_index(*i))
   }
 
-  fn idx_task(&self, idx: NodeIndex) -> Option<&Task> {
+  /// Get the task at an index.
+  fn get_task_by_index(&self, idx: NodeIndex) -> Option<&Task> {
     let node = self.graph.node_weight(idx);
     node.map(|n| match n {
       PipeNode::Task(task) => task,
@@ -74,7 +85,8 @@ impl Pipeline {
     })
   }
 
-  fn idx_artifact(&self, idx: NodeIndex) -> Option<&Artifact> {
+  /// Get the atrifact at an index.
+  fn get_artifact_by_index(&self, idx: NodeIndex) -> Option<&Artifact> {
     let node = self.graph.node_weight(idx);
     node.map(|n| match n {
       PipeNode::Artifact(art) => art,
@@ -82,11 +94,20 @@ impl Pipeline {
     })
   }
 
+  /// Look up or insert an artifact by path.
+  fn find_or_insert_artifact(&mut self, path: &str) -> NodeIndex {
+    let e = self.artifacts.entry(path.to_string()).or_insert_with(|| {
+      let art = Artifact { path: path.to_string() };
+      self.graph.add_node(PipeNode::Artifact(art))
+    });
+    *e
+  }
+
   /// Get the dependencies of a task.
   pub fn task_dependencies(&self, name: &str) -> Vec<&Artifact> {
     if let Some(idx) = self.tasks.get(name) {
       let deps = self.graph.neighbors_directed(*idx, Direction::Incoming);
-      deps.into_iter().map(|i| self.idx_artifact(i).expect("index doesn't exist")).collect()
+      deps.into_iter().map(|i| self.get_artifact_by_index(i).expect("index doesn't exist")).collect()
     } else {
       Vec::new()
     }
@@ -96,7 +117,7 @@ impl Pipeline {
   pub fn task_outputs(&self, name: &str) -> Vec<&Artifact> {
     if let Some(idx) = self.tasks.get(name) {
       let deps = self.graph.neighbors_directed(*idx, Direction::Outgoing);
-      deps.into_iter().map(|i| self.idx_artifact(i).expect("index doesn't exist")).collect()
+      deps.into_iter().map(|i| self.get_artifact_by_index(i).expect("index doesn't exist")).collect()
     } else {
       Vec::new()
     }
