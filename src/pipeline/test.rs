@@ -22,8 +22,7 @@ fn test_add_empty_task() {
   assert_eq!(pipe.artifact_count(), 0);
 
   let task = pipe.get_task("bob");
-  assert!(task.is_some());
-  let task = task.expect("no task found");
+  let task = task.expect("task 'bob' not found");
   assert_eq!(task.name.as_str(), "bob");
   assert_eq!(task.dependencies.len(), 0);
   assert_eq!(task.outputs.len(), 0);
@@ -45,8 +44,7 @@ fn test_add_single_inout() {
   assert_eq!(pipe.artifact_count(), 2);
 
   let task = pipe.get_task("bob");
-  assert!(task.is_some());
-  let task = task.expect("no task found");
+  let task = task.expect("task 'bob' not found");
   assert_eq!(task.name.as_str(), "bob");
   assert_eq!(task.dependencies.len(), 1);
   assert_eq!(task.outputs.len(), 1);
@@ -85,15 +83,13 @@ fn test_add_task_wire() {
   assert_eq!(pipe.artifact_count(), 3);
 
   let task = pipe.get_task("bob");
-  assert!(task.is_some());
-  let task = task.expect("no task found");
+  let task = task.expect("task 'bob' not found");
   assert_eq!(task.name.as_str(), "bob");
   assert_eq!(task.dependencies.len(), 2);
   assert_eq!(task.outputs.len(), 1);
 
   let task = pipe.get_task("alice");
-  assert!(task.is_some());
-  let task = task.expect("no task found");
+  let task = task.expect("task 'alice' not found");
   assert_eq!(task.name.as_str(), "alice");
   assert_eq!(task.dependencies.len(), 0);
   assert_eq!(task.outputs.len(), 1);
@@ -109,12 +105,19 @@ fn test_add_task_wire() {
   assert_eq!(outs.len(), 1);
   assert_eq!(outs[0].path, "bob.out");
 
+  assert_eq!(pipe.task_dependencies("alice").len(), 0);
+
+  let outs = pipe.task_outputs("alice");
+  assert_eq!(outs.len(), 1);
+  assert_eq!(outs[0].path, "alice.out");
+
   // and can we find the artifacts?
   let dep = pipe.get_artifact("bob.in");
-  assert!(dep.is_some());
   assert_eq!(dep.expect("no artifact").path, "bob.in");
 
   let out = pipe.get_artifact("bob.out");
-  assert!(out.is_some());
   assert_eq!(out.expect("no artifact").path, "bob.out");
+
+  let out = pipe.get_artifact("alice.out");
+  assert_eq!(out.expect("no artifact").path, "alice.out");
 }
