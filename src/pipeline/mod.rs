@@ -57,39 +57,49 @@ impl Pipeline {
   /// Get a task by name.
   pub fn get_task(&self, name: &str) -> Option<&Task> {
     let idx = self.tasks.get(name);
-    let node = idx.and_then(|i| self.graph.node_weight(*i));
+    idx.and_then(|i| self.idx_task(*i))
+  }
+
+  /// Get an artifact by name.
+  pub fn get_artifact(&self, path: &str) -> Option<&Artifact> {
+    let idx = self.artifacts.get(path);
+    idx.and_then(|i| self.idx_artifact(*i))
+  }
+
+  fn idx_task(&self, idx: NodeIndex) -> Option<&Task> {
+    let node = self.graph.node_weight(idx);
     node.map(|n| match n {
       PipeNode::Task(task) => task,
       _ => panic!("task node does not have task weight") // internal error
     })
   }
 
-  /// Get an artifact by name.
-  pub fn get_artifact(&self, path: &str) -> Option<&Artifact> {
-    let idx = self.artifacts.get(path);
-    let node = idx.and_then(|i| self.graph.node_weight(*i));
+  fn idx_artifact(&self, idx: NodeIndex) -> Option<&Artifact> {
+    let node = self.graph.node_weight(idx);
     node.map(|n| match n {
       PipeNode::Artifact(art) => art,
       _ => panic!("artifact node does not have artifact weight") // internal error
     })
   }
 
-  fn idx_artifact(&self, idx: NodeIndex) -> Option<&Artifact> {
-    let w = self.graph.node_weight(idx);
-  }
-
   /// Get the dependencies of a task.
   pub fn task_dependencies(&self, name: &str) -> Vec<&Artifact> {
     if let Some(idx) = self.tasks.get(name) {
-      let deps = self.graph.neighbors_directed(*idx, Direction::Outgoing);
+      let deps = self.graph.neighbors_directed(*idx, Direction::Incoming);
+      deps.into_iter().map(|i| self.idx_artifact(i).expect("index doesn't exist")).collect()
     } else {
-      Vec::empty()
+      Vec::new()
     }
   }
 
   /// Get the outputs of a task.
   pub fn task_outputs(&self, name: &str) -> Vec<&Artifact> {
-    Vec::new()
+    if let Some(idx) = self.tasks.get(name) {
+      let deps = self.graph.neighbors_directed(*idx, Direction::Outgoing);
+      deps.into_iter().map(|i| self.idx_artifact(i).expect("index doesn't exist")).collect()
+    } else {
+      Vec::new()
+    }
   }
 
   /// Get the number of tasks in the pipeline.
