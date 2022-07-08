@@ -64,6 +64,16 @@ impl Pipeline {
     })
   }
 
+  /// Get an artifact by name.
+  pub fn get_artifact(&self, path: &str) -> Option<&Artifact> {
+    let idx = self.artifacts.get(path);
+    let node = idx.and_then(|i| self.graph.node_weight(*i));
+    node.map(|n| match n {
+      PipeNode::Artifact(art) => art,
+      _ => panic!("artifact node does not have artifact weight") // internal error
+    })
+  }
+
   /// Get the dependencies of a task.
   pub fn task_dependencies(&self, name: &str) -> Vec<&Artifact> {
     Vec::new()

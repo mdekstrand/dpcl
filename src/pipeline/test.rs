@@ -28,6 +28,7 @@ fn test_add_empty_task() {
   assert_eq!(task.dependencies.len(), 0);
   assert_eq!(task.outputs.len(), 0);
 
+  // look at the graph
   assert_eq!(pipe.task_dependencies("bob").len(), 0);
   assert_eq!(pipe.task_outputs("bob").len(), 0);
 }
@@ -41,7 +42,7 @@ fn test_add_single_inout() {
   pipe.add_task(task);
 
   assert_eq!(pipe.task_count(), 1);
-  assert_eq!(pipe.artifact_count(), 0);
+  assert_eq!(pipe.artifact_count(), 2);
 
   let task = pipe.get_task("bob");
   assert!(task.is_some());
@@ -50,6 +51,21 @@ fn test_add_single_inout() {
   assert_eq!(task.dependencies.len(), 1);
   assert_eq!(task.outputs.len(), 1);
 
-  assert_eq!(pipe.task_dependencies("bob").len(), 0);
-  assert_eq!(pipe.task_outputs("bob").len(), 0);
+  // now let's look at that graph
+  let deps = pipe.task_dependencies("bob");
+  assert_eq!(deps.len(), 1);
+  assert_eq!(deps[0].path, "bob.in");
+
+  let outs = pipe.task_outputs("bob");
+  assert_eq!(outs.len(), 1);
+  assert_eq!(outs[0].path, "bob.out");
+
+  // and can we find the artifacts?
+  let dep = pipe.get_artifact("bob.in");
+  assert!(dep.is_some());
+  assert_eq!(dep.expect("no artifact").path, "bob.in");
+
+  let out = pipe.get_artifact("bob.out");
+  assert!(out.is_some());
+  assert_eq!(out.expect("no artifact").path, "bob.out");
 }

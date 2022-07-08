@@ -2,5 +2,5 @@
 
 #[derive(Debug, Clone)]
 pub struct Artifact {
-  path: String,
+  pub path: String,
 }
