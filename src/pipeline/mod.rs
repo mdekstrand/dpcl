@@ -9,7 +9,7 @@ mod test;
 
 use std::collections::HashMap;
 
-use petgraph::{Graph, Directed, graph::NodeIndex};
+use petgraph::{Graph, Directed, graph::NodeIndex, Direction};
 pub use task::Task;
 pub use artifact::Artifact;
 
@@ -74,9 +74,17 @@ impl Pipeline {
     })
   }
 
+  fn idx_artifact(&self, idx: NodeIndex) -> Option<&Artifact> {
+    let w = self.graph.node_weight(idx);
+  }
+
   /// Get the dependencies of a task.
   pub fn task_dependencies(&self, name: &str) -> Vec<&Artifact> {
-    Vec::new()
+    if let Some(idx) = self.tasks.get(name) {
+      let deps = self.graph.neighbors_directed(*idx, Direction::Outgoing);
+    } else {
+      Vec::empty()
+    }
   }
 
   /// Get the outputs of a task.
