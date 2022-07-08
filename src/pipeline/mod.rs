@@ -9,7 +9,7 @@ mod test;
 
 use std::collections::HashMap;
 
-use petgraph::{Graph, Directed, graph::NodeIndex, Direction, data::Build};
+use petgraph::{Graph, Directed, graph::NodeIndex, Direction};
 pub use task::Task;
 pub use artifact::Artifact;
 
@@ -29,6 +29,7 @@ enum PipeNode {
   Artifact(Artifact),
 }
 
+/// A data pipeline (without status).
 #[derive(Debug, Clone)]
 pub struct Pipeline {
   graph: Graph<PipeNode, (), Directed>,
