@@ -31,7 +31,6 @@ structopt = { version="^0.3", optional=true}
 anyhow = "^1"
 
 [dev-dependencies]
-hamcrest2 = "0.3"
 
 [features]
 default = ["cli"]
