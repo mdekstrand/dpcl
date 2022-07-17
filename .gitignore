@@ -2,3 +2,5 @@
 /target
 *.log
 *.prof
+*.profraw
+*.gcda
